@@ -1,0 +1,11 @@
+spring:
+    datasource:
+        type: com.alibaba.druid.pool.DruidDataSource
+        #MySQL??
+        driverClassName: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://fxmaoyuzzz.mysql.rds.aliyuncs.com:3306/mall_pms?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
+        username: root
+        password: root_1234
+
+server:
+    port: 7001
