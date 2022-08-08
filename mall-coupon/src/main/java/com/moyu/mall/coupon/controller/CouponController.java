@@ -5,6 +5,8 @@ import com.moyu.common.utils.R;
 import com.moyu.mall.coupon.entity.CouponEntity;
 import com.moyu.mall.coupon.service.CouponService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
@@ -19,11 +21,44 @@ import java.util.Map;
  * @email fxmaoyuzzz@126.com
  * @date 2022-08-01 21:32:16
  */
+@RefreshScope
 @RestController
 @RequestMapping("coupon/coupon")
 public class CouponController {
     @Autowired
     private CouponService couponService;
+
+    @Value("${coupon.user.name}")
+    private String name;
+
+
+    /**
+     * Nacos 配置中心测试
+     *
+     * 步骤：
+     * 1、引入依赖
+     *         <dependency>
+     *             <groupId>com.alibaba.cloud</groupId>
+     *             <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+     *         </dependency>
+     *
+     * 2、创建 bootstrap.properties，配置上服务名和配置中心地址
+     *          spring.application.name=mall-coupon
+     *          spring.cloud.nacos.config.server-addr=127.0.0.1:8848
+     * 3、配置中心添加数据集应用名.properties
+     * 4、在数据集中添加配置内容
+     * 5、动态获取配置：在 controller上面标注@RefreshScope注解
+     *
+     *      >>> 如果配置中心和应用的配置文件中同时配置了相同内容，优先使用配置中心的内容
+     *
+     * @return
+     */
+    @RequestMapping("/test")
+    public R configTest() {
+
+        return R.ok().put("name", name);
+    }
+
 
     /**
      * 远程调用测试
