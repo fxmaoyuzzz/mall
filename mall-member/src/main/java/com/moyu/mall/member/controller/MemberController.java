@@ -1,19 +1,15 @@
 package com.moyu.mall.member.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.moyu.mall.member.entity.MemberEntity;
-import com.moyu.mall.member.service.MemberService;
 import com.moyu.common.utils.PageUtils;
 import com.moyu.common.utils.R;
+import com.moyu.mall.member.entity.MemberEntity;
+import com.moyu.mall.member.feign.CouponFeignService;
+import com.moyu.mall.member.service.MemberService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.Map;
 
 
 
@@ -29,6 +25,23 @@ import com.moyu.common.utils.R;
 public class MemberController {
     @Autowired
     private MemberService memberService;
+
+    @Autowired
+    private CouponFeignService couponFeignService;
+
+
+    /**
+     * 测试远程调用 coupon
+     */
+    @RequestMapping("/coupons")
+    public R test(){
+        MemberEntity member = new MemberEntity();
+        member.setNickname("张三");
+
+        R coupon = couponFeignService.memberCoupon();
+
+        return R.ok().put("member", member).put("coupon", coupon.get("coupons"));
+    }
 
     /**
      * 列表

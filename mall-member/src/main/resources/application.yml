@@ -6,6 +6,12 @@ spring:
         url: jdbc:mysql://fxmaoyuzzz.mysql.rds.aliyuncs.com:3306/mall_ums?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
         username: root
         password: root_1234
+    cloud:
+        nacos:
+            discovery:
+                server-addr: 127.0.0.1:8848
+    application:
+        name: mall-member
 
 server:
     port: 7003

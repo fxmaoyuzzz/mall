@@ -1,19 +1,14 @@
 package com.moyu.mall.coupon.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
+import com.moyu.common.utils.PageUtils;
+import com.moyu.common.utils.R;
 import com.moyu.mall.coupon.entity.CouponEntity;
 import com.moyu.mall.coupon.service.CouponService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.moyu.common.utils.PageUtils;
-import com.moyu.common.utils.R;
+import java.util.Arrays;
+import java.util.Map;
 
 
 
@@ -25,10 +20,29 @@ import com.moyu.common.utils.R;
  * @date 2022-08-01 21:32:16
  */
 @RestController
-@RequestMapping("product/coupon")
+@RequestMapping("coupon/coupon")
 public class CouponController {
     @Autowired
     private CouponService couponService;
+
+    /**
+     * 远程调用测试
+     *
+     * 步骤：
+     * 1、引入 open-feign
+     * 2、编写一个接口，告诉 springCloud 这个接口需要调用远程服务(见CouponFeignService)
+     *      2-1、声明接口的方法是调用哪个远程服务的哪个请求（见feign.CouponFeignService#memberCoupon()）
+     * 3、开启远程调用功能：启动类上标注@EnableFeignClients注解(注解上需要标注远程调用接口的包全类名)
+     *
+     */
+    @RequestMapping("/member/list")
+    public R memberCoupon(){
+        CouponEntity couponEntity = new CouponEntity();
+        couponEntity.setCouponName("满 100 减 10");
+
+        return R.ok().put("coupons", Arrays.asList(couponEntity));
+    }
+
 
     /**
      * 列表
