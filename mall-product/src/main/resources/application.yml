@@ -16,11 +16,14 @@ spring:
 server:
     port: 7001
 
-mybatis:
-    configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+
 mybatis-plus:
     global-config:
         db-config:
-            logic-delete-value: 0
-            logic-not-delete-value: 1
+            id-type: AUTO
+            logic-delete-value: 1
+            logic-not-delete-value: 0
+logging:
+    level:
+        com.moyu.mall: debug
