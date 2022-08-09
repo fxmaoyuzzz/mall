@@ -1,5 +1,6 @@
 package com.moyu.mall.product.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -8,6 +9,7 @@ import com.moyu.common.utils.Query;
 import com.moyu.mall.product.dao.CategoryDao;
 import com.moyu.mall.product.entity.CategoryEntity;
 import com.moyu.mall.product.service.CategoryService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-
+@Slf4j
 @Service("categoryService")
 public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity> implements CategoryService {
 
@@ -50,6 +52,13 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
             return level1Menus;
         }
         return entities;
+    }
+
+    @Override
+    public void removeMenuBatchByIds(List<Long> asList) {
+        // TODO: 2022/8/9 检查 ID 是否被引用
+        log.info("删除菜单：{}", JSON.toJSON(asList));
+        baseMapper.deleteBatchIds(asList);
     }
 
     private List<CategoryEntity> getChildren(CategoryEntity root, List<CategoryEntity> all){

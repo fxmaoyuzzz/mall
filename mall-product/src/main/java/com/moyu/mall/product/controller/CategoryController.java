@@ -74,7 +74,9 @@ public class CategoryController {
      */
     @RequestMapping("/delete")
         public R delete(@RequestBody Long[] catIds){
-		categoryService.removeByIds(Arrays.asList(catIds));
+		//categoryService.removeByIds(Arrays.asList(catIds));
+
+        categoryService.removeMenuBatchByIds(Arrays.asList(catIds));
 
         return R.ok();
     }
