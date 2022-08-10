@@ -1,19 +1,16 @@
 package com.moyu.mall.product.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.moyu.mall.product.entity.BrandEntity;
-import com.moyu.mall.product.service.BrandService;
+import com.alibaba.fastjson.JSONObject;
 import com.moyu.common.utils.PageUtils;
 import com.moyu.common.utils.R;
+import com.moyu.mall.product.entity.BrandEntity;
+import com.moyu.mall.product.service.BrandService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.Map;
 
 
 
@@ -24,6 +21,7 @@ import com.moyu.common.utils.R;
  * @email fxmaoyuzzz@126.com
  * @date 2022-08-01 21:08:01
  */
+@Slf4j
 @RestController
 @RequestMapping("product/brand")
 public class BrandController {
@@ -76,6 +74,7 @@ public class BrandController {
      */
     @RequestMapping("/delete")
         public R delete(@RequestBody Long[] brandIds){
+        log.info("Delete Brand,{}", JSONObject.toJSONString(brandIds));
 		brandService.removeByIds(Arrays.asList(brandIds));
 
         return R.ok();

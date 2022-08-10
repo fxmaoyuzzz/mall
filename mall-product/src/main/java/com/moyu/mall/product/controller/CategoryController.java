@@ -1,8 +1,11 @@
 package com.moyu.mall.product.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.moyu.common.utils.R;
 import com.moyu.mall.product.entity.CategoryEntity;
 import com.moyu.mall.product.service.CategoryService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,6 +24,7 @@ import java.util.List;
  * @email fxmaoyuzzz@126.com
  * @date 2022-08-01 21:08:01
  */
+@Slf4j
 @RestController
 @RequestMapping("product/category")
 public class CategoryController {
@@ -44,9 +48,11 @@ public class CategoryController {
      */
     @RequestMapping("/info/{catId}")
         public R info(@PathVariable("catId") Long catId){
+        log.info("查询节点信息:{}",catId);
 		CategoryEntity category = categoryService.getById(catId);
+        log.info("查询节点信息结果:{}", JSON.toJSON(category));
 
-        return R.ok().put("category", category);
+        return R.ok().put("data", category);
     }
 
     /**
@@ -65,6 +71,17 @@ public class CategoryController {
     @RequestMapping("/update")
         public R update(@RequestBody CategoryEntity category){
 		categoryService.updateById(category);
+
+        return R.ok();
+    }
+
+    /**
+     * 修改排序
+     */
+    @RequestMapping("/update/sort")
+    public R updateSort(@RequestBody CategoryEntity[] category){
+        log.info("修改节点排序:{}", JSONObject.toJSONString(category));
+        categoryService.updateBatchById(Arrays.asList(category));
 
         return R.ok();
     }
