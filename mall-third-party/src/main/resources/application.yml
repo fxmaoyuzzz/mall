@@ -1,0 +1,15 @@
+spring:
+  cloud:
+    alicloud:
+      access-key: LTAI5tBk4iZ1MLp8nqG7nFMG
+      secret-key: 45KVhMWQfsV7PpG8qQj4Xma5LLKwcq
+      oss:
+        endpoint: oss-cn-shanghai.aliyuncs.com
+        bucket: mall-zzz
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+server:
+  port: 3000
+
+
