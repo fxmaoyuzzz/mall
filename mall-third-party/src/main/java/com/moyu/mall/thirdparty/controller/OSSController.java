@@ -5,6 +5,7 @@ import com.aliyun.oss.OSS;
 import com.aliyun.oss.common.utils.BinaryUtil;
 import com.aliyun.oss.model.MatchMode;
 import com.aliyun.oss.model.PolicyConditions;
+import com.moyu.common.utils.R;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
  * @Author: zenghai.li
@@ -36,7 +36,7 @@ public class OSSController {
     private String accessId;
 
     @RequestMapping("/oss/policy")
-    public Map<String, String> policy(){
+    public R policy(){
         // 填写Bucket名称，例如examplebucket。
         //String bucket = "mall-zzz";
         // 填写Host地址，格式为https://bucketname.endpoint。
@@ -75,6 +75,6 @@ public class OSSController {
             System.out.println(e.getMessage());
         }
 
-        return respMap;
+        return R.ok().put("data", respMap);
     }
 }

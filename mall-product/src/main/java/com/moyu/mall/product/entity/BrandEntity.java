@@ -2,10 +2,10 @@ package com.moyu.mall.product.entity;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
 
 import java.io.Serializable;
-import java.util.Date;
-import lombok.Data;
 
 /**
  * 品牌
@@ -23,6 +23,7 @@ public class BrandEntity implements Serializable {
 	 * 品牌id
 	 */
 	@TableId
+	@JsonFormat(shape = JsonFormat.Shape.STRING)
 	private Long brandId;
 	/**
 	 * 品牌名
