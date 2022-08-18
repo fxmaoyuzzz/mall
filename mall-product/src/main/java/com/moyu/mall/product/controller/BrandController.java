@@ -3,10 +3,12 @@ package com.moyu.mall.product.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.moyu.common.utils.PageUtils;
 import com.moyu.common.utils.R;
+import com.moyu.common.valid.AddGroup;
 import com.moyu.mall.product.entity.BrandEntity;
 import com.moyu.mall.product.service.BrandService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
@@ -53,7 +55,7 @@ public class BrandController {
      * 保存
      */
     @RequestMapping("/save")
-        public R save(@RequestBody BrandEntity brand){
+        public R save(@Validated({AddGroup.class}) @RequestBody BrandEntity brand){
 		brandService.save(brand);
 
         return R.ok();
