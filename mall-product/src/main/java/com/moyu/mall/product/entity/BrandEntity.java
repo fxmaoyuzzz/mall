@@ -5,11 +5,11 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.moyu.common.valid.AddGroup;
 import com.moyu.common.valid.EditGroup;
+import com.moyu.common.valid.ListValue;
+import com.moyu.common.valid.UpdateStatusGroup;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
 import java.io.Serializable;
 
 /**
@@ -28,14 +28,14 @@ public class BrandEntity implements Serializable {
 	 * 品牌id
 	 */
 	@NotNull(message = "编辑 ID 不能为空", groups = {EditGroup.class})
-	@Null(message = "新增不能指定 ID", groups = {AddGroup.class})
+	//@Null(message = "新增不能指定 ID", groups = {AddGroup.class})
 	@TableId
 	@JsonFormat(shape = JsonFormat.Shape.STRING)
 	private Long brandId;
 	/**
 	 * 品牌名
 	 */
-	@NotBlank(message = "品牌名不能为空")
+	//@NotBlank(message = "品牌名不能为空")
 	private String name;
 	/**
 	 * 品牌logo地址
@@ -48,6 +48,8 @@ public class BrandEntity implements Serializable {
 	/**
 	 * 显示状态[0-不显示；1-显示]
 	 */
+	//@NotNull(groups = {AddGroup.class, UpdateStatusGroup.class})
+	@ListValue(values ={0,1}, groups = {AddGroup.class, UpdateStatusGroup.class})
 	private Integer showStatus;
 	/**
 	 * 检索首字母
