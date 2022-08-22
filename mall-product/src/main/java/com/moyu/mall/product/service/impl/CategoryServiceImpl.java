@@ -13,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -60,6 +62,27 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         log.info("删除菜单：{}", JSON.toJSON(asList));
         baseMapper.deleteBatchIds(asList);
     }
+
+    @Override
+    public Long[] findCateLogPath(Long catelogId) {
+        List<Long> paths = new ArrayList<>();
+        List<Long> cateLogPath = findParentCateLogPath(catelogId, paths);
+        Collections.reverse(cateLogPath);
+
+        return cateLogPath.toArray(new Long[cateLogPath.size()]);
+    }
+
+    private List<Long> findParentCateLogPath(Long catelogId, List<Long> paths) {
+        paths.add(catelogId);
+
+        CategoryEntity category = this.getById(catelogId);
+        if (category.getParentCid() != 0){
+            findParentCateLogPath(category.getParentCid(), paths);
+        }
+
+        return paths;
+    }
+
 
     private List<CategoryEntity> getChildren(CategoryEntity root, List<CategoryEntity> all){
         List<CategoryEntity> children = all.stream().filter(item -> {
