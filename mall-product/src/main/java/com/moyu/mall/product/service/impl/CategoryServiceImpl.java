@@ -8,10 +8,13 @@ import com.moyu.common.utils.PageUtils;
 import com.moyu.common.utils.Query;
 import com.moyu.mall.product.dao.CategoryDao;
 import com.moyu.mall.product.entity.CategoryEntity;
+import com.moyu.mall.product.service.CategoryBrandRelationService;
 import com.moyu.mall.product.service.CategoryService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,6 +26,9 @@ import java.util.stream.Collectors;
 @Service("categoryService")
 public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity> implements CategoryService {
 
+
+    @Autowired
+    private CategoryBrandRelationService categoryBrandRelationService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -70,6 +76,14 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         Collections.reverse(cateLogPath);
 
         return cateLogPath.toArray(new Long[cateLogPath.size()]);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updateCascade(CategoryEntity category) {
+        this.updateById(category);
+
+        categoryBrandRelationService.updateCategory(category.getCatId(), category.getName());
     }
 
     private List<Long> findParentCateLogPath(Long catelogId, List<Long> paths) {

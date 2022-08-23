@@ -37,7 +37,7 @@ public class MallException {
 
     @ExceptionHandler(value = Throwable.class)
     public R handlerValidException(Throwable throwable){
-        log.error("未知异常：{}, 异常类型:{}", throwable.getMessage(), throwable.getClass());
+        log.error("未知异常：{}", throwable);
 
         return R.error(ExceptionCodeEnum.UNKNOWN_EXCEPTION.getCode(), ExceptionCodeEnum.UNKNOWN_EXCEPTION.getMsg());
     }

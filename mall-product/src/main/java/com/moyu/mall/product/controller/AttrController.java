@@ -2,6 +2,7 @@ package com.moyu.mall.product.controller;
 
 import com.moyu.common.utils.PageUtils;
 import com.moyu.common.utils.R;
+import com.moyu.mall.product.bo.AttrEntityBo;
 import com.moyu.mall.product.entity.AttrEntity;
 import com.moyu.mall.product.service.AttrService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,17 @@ import java.util.Map;
 public class AttrController {
     @Autowired
     private AttrService attrService;
+
+
+    /**
+     * 列表
+     */
+    @GetMapping("/base/list/{catelogId}")
+    public R baseAttrList(@RequestParam Map<String, Object> params, @PathVariable("catelogId") Long catelogId) {
+        PageUtils page = attrService.queryBaseAttrList(params, catelogId);
+
+        return R.ok().put("page", page);
+    }
 
     /**
      * 列表
@@ -49,8 +61,8 @@ public class AttrController {
      * 保存
      */
     @RequestMapping("/save")
-        public R save(@RequestBody AttrEntity attr){
-		attrService.save(attr);
+        public R save(@RequestBody AttrEntityBo attrEntityBo){
+		attrService.saveAttr(attrEntityBo);
 
         return R.ok();
     }
