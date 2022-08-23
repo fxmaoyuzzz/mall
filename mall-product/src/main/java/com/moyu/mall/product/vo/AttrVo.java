@@ -14,4 +14,6 @@ public class AttrVo extends AttrEntityBo {
     private String catelogName;
 
     private String groupName;
+
+    private Long[] catelogPath;
 }

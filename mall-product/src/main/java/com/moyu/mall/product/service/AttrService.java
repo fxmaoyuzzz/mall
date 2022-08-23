@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.moyu.common.utils.PageUtils;
 import com.moyu.mall.product.bo.AttrEntityBo;
 import com.moyu.mall.product.entity.AttrEntity;
+import com.moyu.mall.product.vo.AttrVo;
 
 import java.util.Map;
 
@@ -21,5 +22,9 @@ public interface AttrService extends IService<AttrEntity> {
     void saveAttr(AttrEntityBo attrEntityBo);
 
     PageUtils queryBaseAttrList(Map<String, Object> params, Long catelogId);
+
+    AttrVo getAttrInfo(Long attrId);
+
+    void updateAttr(AttrVo attr);
 }
 

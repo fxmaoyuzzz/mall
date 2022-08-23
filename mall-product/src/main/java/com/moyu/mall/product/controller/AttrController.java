@@ -3,8 +3,8 @@ package com.moyu.mall.product.controller;
 import com.moyu.common.utils.PageUtils;
 import com.moyu.common.utils.R;
 import com.moyu.mall.product.bo.AttrEntityBo;
-import com.moyu.mall.product.entity.AttrEntity;
 import com.moyu.mall.product.service.AttrService;
+import com.moyu.mall.product.vo.AttrVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -52,7 +52,7 @@ public class AttrController {
      */
     @RequestMapping("/info/{attrId}")
         public R info(@PathVariable("attrId") Long attrId){
-		AttrEntity attr = attrService.getById(attrId);
+		AttrVo attr = attrService.getAttrInfo(attrId);
 
         return R.ok().put("attr", attr);
     }
@@ -71,8 +71,8 @@ public class AttrController {
      * 修改
      */
     @RequestMapping("/update")
-        public R update(@RequestBody AttrEntity attr){
-		attrService.updateById(attr);
+        public R update(@RequestBody AttrVo attr){
+		attrService.updateAttr(attr);
 
         return R.ok();
     }
