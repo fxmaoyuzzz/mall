@@ -29,6 +29,16 @@ public class AttrController {
     /**
      * 列表
      */
+    @GetMapping("/sale/list/{catelogId}")
+    public R saleAttrList(@RequestParam Map<String, Object> params, @PathVariable("catelogId") Long catelogId) {
+        PageUtils page = attrService.saleAttrList(params, catelogId);
+
+        return R.ok().put("page", page);
+    }
+
+    /**
+     * 列表
+     */
     @GetMapping("/base/list/{catelogId}")
     public R baseAttrList(@RequestParam Map<String, Object> params, @PathVariable("catelogId") Long catelogId) {
         PageUtils page = attrService.queryBaseAttrList(params, catelogId);
