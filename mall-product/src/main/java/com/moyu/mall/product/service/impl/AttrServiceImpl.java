@@ -65,7 +65,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         BeanUtils.copyProperties(attrEntityBo, attrEntity);
         this.save(attrEntity);
 
-        if (attrEntityBo.getAttrType().equals(AttrEnum.ATTR_TYPE_BASE.getCode())) {
+        if (attrEntityBo.getAttrType().equals(AttrEnum.ATTR_TYPE_BASE.getCode()) && attrEntityBo.getAttrType() != null) {
 
             //保存关联关系
             AttrAttrgroupRelationEntity relationEntity = new AttrAttrgroupRelationEntity();

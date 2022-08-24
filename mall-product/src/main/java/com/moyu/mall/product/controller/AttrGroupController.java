@@ -6,6 +6,7 @@ import com.moyu.common.utils.R;
 import com.moyu.mall.product.bo.AttrRelationBo;
 import com.moyu.mall.product.entity.AttrEntity;
 import com.moyu.mall.product.entity.AttrGroupEntity;
+import com.moyu.mall.product.service.AttrAttrgroupRelationService;
 import com.moyu.mall.product.service.AttrGroupService;
 import com.moyu.mall.product.service.AttrService;
 import com.moyu.mall.product.service.CategoryService;
@@ -38,6 +39,18 @@ public class AttrGroupController {
 
     @Autowired
     private AttrService attrService;
+
+    @Autowired
+    private AttrAttrgroupRelationService relationService;
+    /**
+     * 添加属性分组
+     */
+    @PostMapping("/attr/relation")
+    public R addRelation(@RequestBody List<AttrRelationBo> attrRelationBoList) {
+        relationService.saveRelationBatch(attrRelationBoList);
+
+        return R.ok();
+    }
 
     /**
      * 列表
