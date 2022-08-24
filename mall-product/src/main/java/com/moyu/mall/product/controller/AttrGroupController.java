@@ -1,5 +1,6 @@
 package com.moyu.mall.product.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.moyu.common.utils.PageUtils;
 import com.moyu.common.utils.R;
 import com.moyu.mall.product.bo.AttrRelationBo;
@@ -8,6 +9,7 @@ import com.moyu.mall.product.entity.AttrGroupEntity;
 import com.moyu.mall.product.service.AttrGroupService;
 import com.moyu.mall.product.service.AttrService;
 import com.moyu.mall.product.service.CategoryService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +26,7 @@ import java.util.Map;
  * @email fxmaoyuzzz@126.com
  * @date 2022-08-01 21:08:01
  */
+@Slf4j
 @RestController
 @RequestMapping("product/attrgroup")
 public class AttrGroupController {
@@ -54,6 +57,19 @@ public class AttrGroupController {
         List<AttrEntity> attrEntityList = attrService.getAttrRelation(attrgroupId);
 
         return R.ok().put("data", attrEntityList);
+    }
+
+    /**
+     * 根据分组 ID 查询没有关联的所有属性
+     */
+    @GetMapping("/{attrgroupId}/noattr/relation")
+    public R attrNoRelation(@PathVariable("attrgroupId") Long attrgroupId,
+            @RequestParam Map<String, Object> params){
+        PageUtils page = attrService.getNoRelationAttr(params, attrgroupId);
+
+
+        log.info("返回没有关联的属性:{}", JSON.toJSONString(page));
+        return R.ok().put("data", page);
     }
 
 

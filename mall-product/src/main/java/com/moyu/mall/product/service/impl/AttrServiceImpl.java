@@ -279,4 +279,49 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
 
     }
 
+    @Override
+    public PageUtils getNoRelationAttr(Map<String, Object> params, Long attrgroupId) {
+        AttrGroupEntity attrGroupEntity = attrGroupDao.selectById(attrgroupId);
+        Long catelogId = attrGroupEntity.getCatelogId();
+
+        LambdaQueryWrapper<AttrGroupEntity> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(AttrGroupEntity::getCatelogId, catelogId);
+        List<AttrGroupEntity> list = attrGroupDao.selectList(wrapper);
+        if (CollectionUtils.isNotEmpty(list)) {
+            List<Long> attrGroupIdList = list.stream().map(AttrGroupEntity::getAttrGroupId).collect(Collectors.toList());
+            LambdaQueryWrapper<AttrAttrgroupRelationEntity> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.in(AttrAttrgroupRelationEntity::getAttrGroupId, attrGroupIdList);
+
+            List<AttrAttrgroupRelationEntity> relationEntityList = relationDao.selectList(queryWrapper);
+            if (CollectionUtils.isNotEmpty(relationEntityList)){
+                List<Long> attrIdList = relationEntityList.stream().map(AttrAttrgroupRelationEntity::getAttrId)
+                        .collect(Collectors.toList());
+
+                LambdaQueryWrapper<AttrEntity> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+                lambdaQueryWrapper.eq(AttrEntity::getCatelogId, catelogId)
+                        .eq(AttrEntity::getAttrType, AttrEnum.ATTR_TYPE_BASE.getCode());
+                if (CollectionUtils.isNotEmpty(attrIdList)){
+                    lambdaQueryWrapper.notIn(AttrEntity::getAttrId, attrIdList);
+                }
+
+                String key = (String) params.get("key");
+                if (StringUtils.isNotBlank(key)) {
+                    lambdaQueryWrapper.and( w -> {
+                        w.eq(AttrEntity::getAttrId, key)
+                                .or()
+                                .like(AttrEntity::getAttrName, key);
+                    });
+                }
+
+                IPage<AttrEntity> page = this.page(new Query<AttrEntity>().getPage(params), lambdaQueryWrapper);
+
+                PageUtils pageUtils = new PageUtils(page);
+
+                return pageUtils;
+            }
+        }
+
+        return null;
+    }
+
 }
