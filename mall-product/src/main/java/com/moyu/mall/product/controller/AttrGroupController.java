@@ -2,13 +2,17 @@ package com.moyu.mall.product.controller;
 
 import com.moyu.common.utils.PageUtils;
 import com.moyu.common.utils.R;
+import com.moyu.mall.product.bo.AttrRelationBo;
+import com.moyu.mall.product.entity.AttrEntity;
 import com.moyu.mall.product.entity.AttrGroupEntity;
 import com.moyu.mall.product.service.AttrGroupService;
+import com.moyu.mall.product.service.AttrService;
 import com.moyu.mall.product.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 
@@ -28,6 +32,29 @@ public class AttrGroupController {
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private AttrService attrService;
+
+    /**
+     * 列表
+     */
+    @PostMapping("/attr/relation/delete")
+    public R deleteRelation(@RequestBody AttrRelationBo[] attrRelationBos) {
+        attrService.deleteRelation(attrRelationBos);
+
+        return R.ok();
+    }
+
+    /**
+     * 根据分组 ID 查询关联的所有属性
+     */
+    @RequestMapping("/{attrgroupId}/attr/relation")
+    public R attrRelation(@PathVariable("attrgroupId") Long attrgroupId){
+        List<AttrEntity> attrEntityList = attrService.getAttrRelation(attrgroupId);
+
+        return R.ok().put("data", attrEntityList);
+    }
 
 
     /**

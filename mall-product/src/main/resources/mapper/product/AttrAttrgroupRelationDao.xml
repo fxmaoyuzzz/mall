@@ -10,6 +10,16 @@
         <result property="attrGroupId" column="attr_group_id"/>
         <result property="attrSort" column="attr_sort"/>
     </resultMap>
+    <delete id="deleteBatchRelation">
+        DELETE FROM pms_attr_attrgroup_relation
+
+        WHERE 1=1
+        <if test="entityList != null and entityList.size() > 0">
+            <foreach collection="entityList" index="index" item="item" separator=" OR ">
+                AND (attr_id = #{item.attrId} AND attr_group_id = #{item.attrGroupId})
+            </foreach>
+        </if>
+    </delete>
 
 
 </mapper>
