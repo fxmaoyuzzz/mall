@@ -10,6 +10,7 @@ import com.moyu.mall.product.service.AttrAttrgroupRelationService;
 import com.moyu.mall.product.service.AttrGroupService;
 import com.moyu.mall.product.service.AttrService;
 import com.moyu.mall.product.service.CategoryService;
+import com.moyu.mall.product.vo.AttrGroupWithAttrsVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -42,6 +43,20 @@ public class AttrGroupController {
 
     @Autowired
     private AttrAttrgroupRelationService relationService;
+
+
+
+    /**
+     * 添加属性分组
+     */
+    @GetMapping("/{catelogId}/withattr")
+    public R getAttrGroupWithAttrs(@PathVariable("catelogId") Long catelogId) {
+        List<AttrGroupWithAttrsVo> attrGroupWithAttrsVoList = attrGroupService.getAttrGroupWithAttrsByCatelogId(catelogId);
+
+        return R.ok().put("data", attrGroupWithAttrsVoList);
+    }
+
+
     /**
      * 添加属性分组
      */

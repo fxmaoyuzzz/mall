@@ -21,6 +21,7 @@ import com.moyu.mall.product.entity.CategoryEntity;
 import com.moyu.mall.product.service.AttrService;
 import com.moyu.mall.product.service.CategoryService;
 import com.moyu.mall.product.vo.AttrVo;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -32,6 +33,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 
+@Slf4j
 @Service("attrService")
 public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements AttrService {
 
@@ -109,6 +111,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
 
                         LambdaQueryWrapper<AttrAttrgroupRelationEntity> queryWrapper = new LambdaQueryWrapper<>();
                         queryWrapper.eq(AttrAttrgroupRelationEntity::getAttrId, item.getAttrId());
+                        log.info("attrId:", item.getAttrId());
                         AttrAttrgroupRelationEntity relationEntity = relationDao.selectOne(queryWrapper);
                         if (relationEntity != null) {
                             AttrGroupEntity attrGroupEntity = attrGroupDao.selectById(relationEntity.getAttrGroupId());

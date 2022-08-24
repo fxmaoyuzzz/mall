@@ -14,14 +14,17 @@ import com.moyu.mall.product.dao.CategoryDao;
 import com.moyu.mall.product.entity.BrandEntity;
 import com.moyu.mall.product.entity.CategoryBrandRelationEntity;
 import com.moyu.mall.product.entity.CategoryEntity;
+import com.moyu.mall.product.service.BrandService;
 import com.moyu.mall.product.service.CategoryBrandRelationService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service("categoryBrandRelationService")
@@ -32,6 +35,9 @@ public class CategoryBrandRelationServiceImpl extends ServiceImpl<CategoryBrandR
 
     @Autowired
     private CategoryDao categoryDao;
+
+    @Autowired
+    private BrandService brandService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -82,5 +88,23 @@ public class CategoryBrandRelationServiceImpl extends ServiceImpl<CategoryBrandR
         wrapper.set(CategoryBrandRelationEntity::getCatelogName, name);
 
         this.update(wrapper);
+    }
+
+    @Override
+    public List<BrandEntity> getBrandByCatId(Long catId) {
+        LambdaQueryWrapper<CategoryBrandRelationEntity> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(CategoryBrandRelationEntity::getCatelogId, catId);
+
+        List<CategoryBrandRelationEntity> relationEntityList = baseMapper.selectList(wrapper);
+        if (CollectionUtils.isNotEmpty(relationEntityList)) {
+            List<BrandEntity> brandEntityList = relationEntityList.stream().map(item -> {
+                BrandEntity brand = brandService.getById(item.getBrandId());
+                return brand;
+            }).collect(Collectors.toList());
+
+            return brandEntityList;
+        }
+
+        return null;
     }
 }

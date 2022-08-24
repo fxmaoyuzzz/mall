@@ -1,10 +1,12 @@
 package com.moyu.mall.product.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.moyu.common.utils.PageUtils;
 import com.moyu.common.utils.R;
 import com.moyu.mall.product.bo.AttrEntityBo;
 import com.moyu.mall.product.service.AttrService;
 import com.moyu.mall.product.vo.AttrVo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +21,7 @@ import java.util.Map;
  * @email fxmaoyuzzz@126.com
  * @date 2022-08-01 21:08:01
  */
+@Slf4j
 @RestController
 @RequestMapping("product/attr")
 public class AttrController {
@@ -42,6 +45,8 @@ public class AttrController {
     @GetMapping("/base/list/{catelogId}")
     public R baseAttrList(@RequestParam Map<String, Object> params, @PathVariable("catelogId") Long catelogId) {
         PageUtils page = attrService.queryBaseAttrList(params, catelogId);
+
+        log.info("baseAttrList:{}", JSON.toJSONString(page));
 
         return R.ok().put("page", page);
     }

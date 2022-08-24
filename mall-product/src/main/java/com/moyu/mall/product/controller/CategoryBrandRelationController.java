@@ -2,14 +2,19 @@ package com.moyu.mall.product.controller;
 
 import com.moyu.common.utils.PageUtils;
 import com.moyu.common.utils.R;
+import com.moyu.mall.product.entity.BrandEntity;
 import com.moyu.mall.product.entity.CategoryBrandRelationEntity;
 import com.moyu.mall.product.service.CategoryBrandRelationService;
+import com.moyu.mall.product.vo.BrandVo;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 /**
@@ -24,6 +29,28 @@ import java.util.Map;
 public class CategoryBrandRelationController {
     @Autowired
     private CategoryBrandRelationService categoryBrandRelationService;
+
+
+    /**
+     * 列表
+     */
+    @GetMapping(value = "/brands/list")
+    public R relationBrandList(@RequestParam(value = "catId", required = true) Long catId) {
+        List<BrandEntity> data = categoryBrandRelationService.getBrandByCatId(catId);
+
+        List<BrandVo> list = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(data)) {
+            list = data.stream().map(item -> {
+                BrandVo brandVo = new BrandVo();
+                brandVo.setBrandId(item.getBrandId());
+                brandVo.setBrandName(item.getName());
+
+                return brandVo;
+            }).collect(Collectors.toList());
+        }
+
+        return R.ok().put("data", list);
+    }
 
     /**
      * 列表
