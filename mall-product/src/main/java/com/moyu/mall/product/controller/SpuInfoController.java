@@ -4,6 +4,7 @@ import com.moyu.common.utils.PageUtils;
 import com.moyu.common.utils.R;
 import com.moyu.mall.product.entity.SpuInfoEntity;
 import com.moyu.mall.product.service.SpuInfoService;
+import com.moyu.mall.product.vo.SpuSaveVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,7 +31,7 @@ public class SpuInfoController {
      */
     @RequestMapping("/list")
         public R list(@RequestParam Map<String, Object> params){
-        PageUtils page = spuInfoService.queryPage(params);
+        PageUtils page = spuInfoService.queryPageByCondition(params);
 
         return R.ok().put("page", page);
     }
@@ -47,11 +48,12 @@ public class SpuInfoController {
     }
 
     /**
-     * 保存
+     * 保存发布的商品信息
      */
     @RequestMapping("/save")
-        public R save(@RequestBody SpuInfoEntity spuInfo){
-		spuInfoService.save(spuInfo);
+        public R save(@RequestBody SpuSaveVo spuSaveVo){
+		//spuInfoService.save(spuInfo);
+        spuInfoService.saveSpuInfo(spuSaveVo);
 
         return R.ok();
     }

@@ -1,19 +1,15 @@
 package com.moyu.mall.coupon.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
+import com.moyu.common.to.SkuReductionTo;
+import com.moyu.common.utils.PageUtils;
+import com.moyu.common.utils.R;
 import com.moyu.mall.coupon.entity.SkuFullReductionEntity;
 import com.moyu.mall.coupon.service.SkuFullReductionService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.moyu.common.utils.PageUtils;
-import com.moyu.common.utils.R;
+import java.util.Arrays;
+import java.util.Map;
 
 
 
@@ -25,10 +21,22 @@ import com.moyu.common.utils.R;
  * @date 2022-08-01 21:32:15
  */
 @RestController
-@RequestMapping("product/skufullreduction")
+@RequestMapping("coupon/skufullreduction")
 public class SkuFullReductionController {
     @Autowired
     private SkuFullReductionService skuFullReductionService;
+
+
+    /**
+     * 保存积分满减
+     */
+    @RequestMapping("/saveinfo")
+    public R saveInfo(@RequestBody SkuReductionTo skuReductionTo){
+        skuFullReductionService.saveSkuReductionTo(skuReductionTo);
+
+        return R.ok();
+    }
+
 
     /**
      * 列表

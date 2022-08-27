@@ -1,19 +1,14 @@
 package com.moyu.mall.coupon.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import com.moyu.mall.coupon.entity.SeckillPromotionEntity;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.moyu.mall.coupon.service.SeckillPromotionService;
 import com.moyu.common.utils.PageUtils;
 import com.moyu.common.utils.R;
+import com.moyu.mall.coupon.entity.SeckillPromotionEntity;
+import com.moyu.mall.coupon.service.SeckillPromotionService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.Map;
 
 
 
@@ -25,7 +20,7 @@ import com.moyu.common.utils.R;
  * @date 2022-08-01 21:32:16
  */
 @RestController
-@RequestMapping("product/seckillpromotion")
+@RequestMapping("coupon/seckillpromotion")
 public class SeckillPromotionController {
     @Autowired
     private SeckillPromotionService seckillPromotionService;
