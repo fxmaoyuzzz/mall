@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.moyu.common.utils.PageUtils;
 import com.moyu.mall.ware.entity.PurchaseDetailEntity;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,5 +17,12 @@ import java.util.Map;
 public interface PurchaseDetailService extends IService<PurchaseDetailEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
+
+    /**
+     * 根据采购单 ID 查询采购项
+     * @param id
+     * @return
+     */
+    List<PurchaseDetailEntity> listDetailByPurchaseId(Long id);
 }
 

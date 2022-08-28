@@ -2,11 +2,12 @@ package com.moyu.mall.ware.entity;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-
-import java.math.BigDecimal;
-import java.io.Serializable;
-import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * 采购信息
@@ -24,6 +25,7 @@ public class PurchaseEntity implements Serializable {
 	 * 采购单id
 	 */
 	@TableId
+	@JsonFormat(shape = JsonFormat.Shape.STRING)
 	private Long id;
 	/**
 	 * 采购人id
