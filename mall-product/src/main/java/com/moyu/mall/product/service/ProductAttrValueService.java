@@ -23,5 +23,14 @@ public interface ProductAttrValueService extends IService<ProductAttrValueEntity
      * @param attrValueEntityList
      */
     void saveBatchProductAttr(List<ProductAttrValueEntity> attrValueEntityList);
+
+    /**
+     * 查询商品规格属性
+     * @param spuId
+     * @return
+     */
+    List<ProductAttrValueEntity> baseAttrListForSpu(Long spuId);
+
+    void updateSpuAttr(Long spuId, List<ProductAttrValueEntity> list);
 }
 

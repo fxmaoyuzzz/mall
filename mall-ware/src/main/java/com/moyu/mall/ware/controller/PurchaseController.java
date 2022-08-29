@@ -3,6 +3,7 @@ package com.moyu.mall.ware.controller;
 import com.moyu.common.utils.PageUtils;
 import com.moyu.common.utils.R;
 import com.moyu.mall.ware.bo.MergeBo;
+import com.moyu.mall.ware.bo.PurchaseDoneBo;
 import com.moyu.mall.ware.entity.PurchaseEntity;
 import com.moyu.mall.ware.service.PurchaseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,16 @@ import java.util.Map;
 public class PurchaseController {
     @Autowired
     private PurchaseService purchaseService;
+
+    /**
+     * 完成采购单
+     */
+    @PostMapping("/done")
+    public R donePurchase(@RequestBody PurchaseDoneBo doneBo){
+        purchaseService.donePurchase(doneBo);
+
+        return R.ok();
+    }
 
     /**
      * 领取采购单

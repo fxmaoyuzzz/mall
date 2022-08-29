@@ -4,13 +4,16 @@ import com.alibaba.fastjson.JSON;
 import com.moyu.common.utils.PageUtils;
 import com.moyu.common.utils.R;
 import com.moyu.mall.product.bo.AttrEntityBo;
+import com.moyu.mall.product.entity.ProductAttrValueEntity;
 import com.moyu.mall.product.service.AttrService;
+import com.moyu.mall.product.service.ProductAttrValueService;
 import com.moyu.mall.product.vo.AttrVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 
@@ -27,6 +30,19 @@ import java.util.Map;
 public class AttrController {
     @Autowired
     private AttrService attrService;
+
+    @Autowired
+    private ProductAttrValueService productAttrValueService;
+
+    /**
+     * 查询商品规格属性
+     */
+    @GetMapping("/base/listforspu/{spuId}")
+    public R baseAttrListForSpu(@PathVariable("spuId") Long spuId) {
+        List<ProductAttrValueEntity> list = productAttrValueService.baseAttrListForSpu(spuId);
+
+        return R.ok().put("data", list);
+    }
 
 
     /**
@@ -88,6 +104,17 @@ public class AttrController {
     @RequestMapping("/update")
         public R update(@RequestBody AttrVo attr){
 		attrService.updateAttr(attr);
+
+        return R.ok();
+    }
+
+    /**
+     * 批量修改
+     */
+    @PostMapping("/update/{spuId}")
+    public R updateSpuAttr(@PathVariable("spuId") Long spuId,
+                           @RequestBody List<ProductAttrValueEntity> list){
+        productAttrValueService.updateSpuAttr(spuId, list);
 
         return R.ok();
     }

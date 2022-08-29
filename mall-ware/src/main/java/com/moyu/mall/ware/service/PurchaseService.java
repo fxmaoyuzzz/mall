@@ -3,6 +3,7 @@ package com.moyu.mall.ware.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.moyu.common.utils.PageUtils;
 import com.moyu.mall.ware.bo.MergeBo;
+import com.moyu.mall.ware.bo.PurchaseDoneBo;
 import com.moyu.mall.ware.entity.PurchaseEntity;
 
 import java.util.List;
@@ -37,5 +38,11 @@ public interface PurchaseService extends IService<PurchaseEntity> {
      * @param ids
      */
     void receivedPurchase(List<Long> ids);
+
+    /**
+     * 完成采购单
+     * @param doneBo
+     */
+    void donePurchase(PurchaseDoneBo doneBo);
 }
 

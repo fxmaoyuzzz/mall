@@ -9,16 +9,20 @@ import com.moyu.common.enums.PurchaseStatusEnum;
 import com.moyu.common.utils.PageUtils;
 import com.moyu.common.utils.Query;
 import com.moyu.mall.ware.bo.MergeBo;
+import com.moyu.mall.ware.bo.PurchaseDoneBo;
+import com.moyu.mall.ware.bo.PurchaseDoneItemBo;
 import com.moyu.mall.ware.dao.PurchaseDao;
 import com.moyu.mall.ware.entity.PurchaseDetailEntity;
 import com.moyu.mall.ware.entity.PurchaseEntity;
 import com.moyu.mall.ware.service.PurchaseDetailService;
 import com.moyu.mall.ware.service.PurchaseService;
+import com.moyu.mall.ware.service.WareSkuService;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +34,9 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
 
     @Autowired
     private PurchaseDetailService purchaseDetailService;
+
+    @Autowired
+    private WareSkuService wareSkuService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -147,4 +154,44 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
         }
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void donePurchase(PurchaseDoneBo doneBo) {
+        Long purchaseId = doneBo.getId();
+
+        //改变采购单内的采购项状态
+        Boolean flag = true;
+        List<PurchaseDoneItemBo> itemBoList = doneBo.getItems();
+        List<PurchaseDetailEntity> doneItemList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(itemBoList)) {
+            for (PurchaseDoneItemBo item : itemBoList) {
+                PurchaseDetailEntity purchaseDetail = new PurchaseDetailEntity();
+
+                if (item.getStatus().equals(PurchaseDetailStatusEnum.ERROR.getCode())){
+                    flag = false;
+                    purchaseDetail.setStatus(PurchaseDetailStatusEnum.ERROR.getCode());
+                }else {
+                    purchaseDetail.setStatus(PurchaseDetailStatusEnum.FINISHED.getCode());
+                    //查询采购项详情
+                    PurchaseDetailEntity purchaseDetailEntity = purchaseDetailService.getById(item.getItemId());
+                    if (purchaseDetailEntity != null) {
+                        //将成功采购的入库
+
+                        wareSkuService.addStock(purchaseDetailEntity.getSkuId(), purchaseDetailEntity.getWareId(), purchaseDetailEntity.getSkuNum());
+                    }
+                }
+                purchaseDetail.setId(item.getItemId());
+
+                doneItemList.add(purchaseDetail);
+            }
+            purchaseDetailService.updateBatchById(doneItemList);
+        }
+
+        //改变采购单状态
+        PurchaseEntity purchase = new PurchaseEntity();
+        purchase.setId(purchaseId);
+        purchase.setStatus(flag ? PurchaseStatusEnum.FINISHED.getCode() : PurchaseStatusEnum.EXCEPTION.getCode());
+        purchase.setUpdateTime(new Date());
+        this.updateById(purchase);
+    }
 }
