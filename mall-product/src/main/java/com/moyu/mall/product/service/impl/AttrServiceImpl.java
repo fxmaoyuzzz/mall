@@ -327,4 +327,25 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         return null;
     }
 
+    @Override
+    public List<Long> listSearchAttrs(List<Long> attrIdList) {
+        LambdaQueryWrapper<AttrEntity> wrapper = new LambdaQueryWrapper<>();
+        wrapper.select(AttrEntity::getAttrId);
+        wrapper.in(AttrEntity::getAttrId, attrIdList);
+        wrapper.eq(AttrEntity::getSearchType, 1);
+
+        List<AttrEntity> list = this.list(wrapper);
+
+        if (CollectionUtils.isNotEmpty(list)) {
+            List<Long> collect = list.stream()
+                    .map(AttrEntity::getAttrId)
+                    .collect(Collectors.toList());
+
+            return collect;
+        }
+
+
+        return null;
+    }
+
 }

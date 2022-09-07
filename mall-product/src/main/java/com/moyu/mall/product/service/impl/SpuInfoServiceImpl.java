@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.moyu.common.to.SkuReductionTo;
 import com.moyu.common.to.SpuBoundsTo;
+import com.moyu.common.to.es.SkuEsModel;
 import com.moyu.common.utils.PageUtils;
 import com.moyu.common.utils.Query;
 import com.moyu.common.utils.R;
@@ -24,9 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -56,6 +55,12 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
     @Autowired
     private CouponFeignService couponFeignService;
+
+    @Autowired
+    private BrandService brandService;
+
+    @Autowired
+    private CategoryService categoryService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -237,5 +242,67 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         );
 
         return new PageUtils(page);
+    }
+
+    @Override
+    public void spuUp(Long spuId) {
+        ArrayList<SkuEsModel> upSkuList = new ArrayList<>();
+
+        List<ProductAttrValueEntity> baseAttrListForSpu = attrValueService.baseAttrListForSpu(spuId);
+        List<Long> attrIdList = baseAttrListForSpu.stream().map(ProductAttrValueEntity::getAttrId)
+                .collect(Collectors.toList());
+        List<Long> searchAttrIdList = attrService.listSearchAttrs(attrIdList);
+
+        HashSet<Long> idSet = new HashSet<>(searchAttrIdList);
+
+        List<ProductAttrValueEntity> attrValueList = new ArrayList<>();
+        //if (CollectionUtils.isEmpty(baseAttrListForSpu)) {
+            List<SkuEsModel.Attrs> attrsList = baseAttrListForSpu.stream()
+                    .filter(item -> idSet.contains(item.getAttrId()))
+                    .map(item -> {
+                        SkuEsModel.Attrs attrs = new SkuEsModel.Attrs();
+                        BeanUtils.copyProperties(item, attrs);
+
+                        return attrs;
+                    }).collect(Collectors.toList());
+        //}
+
+
+        SkuEsModel skuEsModel = new SkuEsModel();
+        List<SkuInfoEntity> skuInfoEntityList = skuInfoService.getSkuBySpuId(spuId);
+
+        List<SkuEsModel> esModelList = skuInfoEntityList.stream().map(item -> {
+            SkuEsModel esModel = new SkuEsModel();
+            BeanUtils.copyProperties(item, esModel);
+            esModel.setSkuPrice(item.getPrice());
+            esModel.setSkuImg(item.getSkuDefaultImg());
+
+            //TODO:远程调用库存系统是否有库存
+
+
+            BrandEntity brand = brandService.getById(esModel.getBrandId());
+            if (brand != null) {
+                esModel.setBrandName(brand.getName());
+                esModel.setBrandImg(brand.getLogo());
+            }
+            CategoryEntity category = categoryService.getById(esModel.getCatalogId());
+            if (category != null) {
+                esModel.setCatalogName(category.getName());
+            }
+
+            if (CollectionUtils.isNotEmpty(attrValueList)){
+
+            }
+
+            esModel.setHotScore(0L);
+
+            //设置检索属性
+            esModel.setAttrs(attrsList);
+
+
+            return esModel;
+        }).collect(Collectors.toList());
+
+        //发送 ES 保存数据
     }
 }
