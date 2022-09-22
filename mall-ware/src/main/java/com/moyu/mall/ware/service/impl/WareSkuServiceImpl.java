@@ -1,6 +1,7 @@
 package com.moyu.mall.ware.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,13 +13,16 @@ import com.moyu.mall.ware.entity.WareSkuEntity;
 import com.moyu.mall.ware.feign.ProductFeignService;
 import com.moyu.mall.ware.feign.entity.SkuInfoEntity;
 import com.moyu.mall.ware.service.WareSkuService;
+import com.moyu.mall.ware.vo.SkuHasStockVo;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Service("wareSkuService")
@@ -84,5 +88,27 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
         }else {
             baseMapper.addStock(skuId, wareId, skuNum);
         }
+    }
+
+    @Override
+    public List<SkuHasStockVo> getSkuHasStock(List<Long> skuIds) {
+        List<SkuHasStockVo> stockVoList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(skuIds)) {
+            stockVoList = skuIds.stream().map(skuId -> {
+                SkuHasStockVo hasStockVo = new SkuHasStockVo();
+                //查询当前 sku 的总库存
+                QueryWrapper<WareSkuEntity> wrapper = new QueryWrapper<>();
+                wrapper.select("IFNULL(SUM(stock), 0) AS stockSum");
+                wrapper.eq("id", skuId);
+
+                WareSkuEntity skuEntity = baseMapper.selectOne(wrapper);
+                hasStockVo.setSkuId(skuId);
+                hasStockVo.setHasStock(skuEntity != null ? skuEntity.getStockSum() > 0 : false);
+
+                return hasStockVo;
+            }).collect(Collectors.toList());
+        }
+
+        return stockVoList;
     }
 }

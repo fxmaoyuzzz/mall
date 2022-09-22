@@ -2,10 +2,9 @@ package com.moyu.mall.ware.entity;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
 
 import java.io.Serializable;
-import java.util.Date;
-import lombok.Data;
 
 /**
  * 商品库存
@@ -45,4 +44,6 @@ public class WareSkuEntity implements Serializable {
 	 */
 	private Integer stockLocked;
 
+
+	private Long stockSum;
 }

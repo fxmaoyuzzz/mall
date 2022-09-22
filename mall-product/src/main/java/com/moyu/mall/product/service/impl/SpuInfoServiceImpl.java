@@ -1,10 +1,13 @@
 package com.moyu.mall.product.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.moyu.common.enums.StatusEnum;
 import com.moyu.common.to.SkuReductionTo;
 import com.moyu.common.to.SpuBoundsTo;
 import com.moyu.common.to.es.SkuEsModel;
@@ -14,6 +17,8 @@ import com.moyu.common.utils.R;
 import com.moyu.mall.product.dao.SpuInfoDao;
 import com.moyu.mall.product.entity.*;
 import com.moyu.mall.product.feign.CouponFeignService;
+import com.moyu.mall.product.feign.SearchFeignService;
+import com.moyu.mall.product.feign.WareFeignService;
 import com.moyu.mall.product.service.*;
 import com.moyu.mall.product.vo.*;
 import lombok.extern.slf4j.Slf4j;
@@ -61,6 +66,12 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private WareFeignService wareFeignService;
+
+    @Autowired
+    private SearchFeignService searchFeignService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -271,13 +282,34 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         SkuEsModel skuEsModel = new SkuEsModel();
         List<SkuInfoEntity> skuInfoEntityList = skuInfoService.getSkuBySpuId(spuId);
 
+        //远程调用库存系统是否有库存
+        List<Long> skuIds = skuInfoEntityList.stream()
+                .map(SkuInfoEntity::getSkuId)
+                .collect(Collectors.toList());
+        Map<Long, Boolean> stockMap = new HashMap<>();
+
+        try {
+            R res = wareFeignService.getSkuHasStock(skuIds);
+
+            TypeReference<List<SkuHasStockVo>> typeReference = new TypeReference<List<SkuHasStockVo>>(){};
+            if (res.getCode() == 0 && CollectionUtils.isNotEmpty(res.getData(typeReference))) {
+                stockMap = res.getData(typeReference).stream()
+                        .collect(Collectors.toMap(SkuHasStockVo::getSkuId, item -> item.getHasStock()));
+            }
+        }catch (Exception e) {
+            log.error("远程调用库存服务查询库存异常：{}", e);
+        }
+
+
+
+        Map<Long, Boolean> finalStockMap = stockMap;
         List<SkuEsModel> esModelList = skuInfoEntityList.stream().map(item -> {
             SkuEsModel esModel = new SkuEsModel();
             BeanUtils.copyProperties(item, esModel);
             esModel.setSkuPrice(item.getPrice());
             esModel.setSkuImg(item.getSkuDefaultImg());
 
-            //TODO:远程调用库存系统是否有库存
+
 
 
             BrandEntity brand = brandService.getById(esModel.getBrandId());
@@ -293,6 +325,11 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
             if (CollectionUtils.isNotEmpty(attrValueList)){
 
             }
+            if (finalStockMap.isEmpty()){
+                esModel.setHashStock(true);
+            }else {
+                esModel.setHashStock(finalStockMap.get(item.getSkuId()));
+            }
 
             esModel.setHotScore(0L);
 
@@ -304,5 +341,20 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         }).collect(Collectors.toList());
 
         //发送 ES 保存数据
+        R r = searchFeignService.productStatusUp(esModelList);
+        if (r.getCode() == 0) {
+            //成功
+
+            LambdaUpdateWrapper<SpuInfoEntity> wrapper = new LambdaUpdateWrapper<>();
+            wrapper.set(SpuInfoEntity::getPublishStatus, StatusEnum.UP.getCode());
+            wrapper.set(SpuInfoEntity::getUpdateTime, new Date());
+            wrapper.eq(SpuInfoEntity::getId, spuId);
+            log.info("更新商品ID:{} 状态为上架", spuId);
+            this.update(wrapper);
+        }else {
+
+            // TODO: 2022/9/22 幂等校验
+        }
+
     }
 }

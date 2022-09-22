@@ -14,6 +14,9 @@ public enum ExceptionCodeEnum {
 
     VALID_EXCEPTION(10001, "参数校验失败"),
 
+
+    PRODUCT_UP_EXCEPTION(11000, "商品上架异常"),
+
     ;
 
     private int code;

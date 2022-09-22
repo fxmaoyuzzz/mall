@@ -1,19 +1,16 @@
 package com.moyu.mall.ware.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.moyu.mall.ware.entity.WareSkuEntity;
-import com.moyu.mall.ware.service.WareSkuService;
 import com.moyu.common.utils.PageUtils;
 import com.moyu.common.utils.R;
+import com.moyu.mall.ware.entity.WareSkuEntity;
+import com.moyu.mall.ware.service.WareSkuService;
+import com.moyu.mall.ware.vo.SkuHasStockVo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 
 
@@ -29,6 +26,17 @@ import com.moyu.common.utils.R;
 public class WareSkuController {
     @Autowired
     private WareSkuService wareSkuService;
+
+
+    /**
+     * 查询是否有库存
+     */
+    @PostMapping("/hashStock")
+    public R getSkuHasStock(@RequestBody List<Long> skuIds) {
+        List<SkuHasStockVo> skuHasStockVos = wareSkuService.getSkuHasStock(skuIds);
+
+        return R.ok().setData(skuHasStockVos);
+    }
 
     /**
      * 列表

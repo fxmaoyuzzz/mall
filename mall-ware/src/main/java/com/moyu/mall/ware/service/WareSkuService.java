@@ -3,7 +3,9 @@ package com.moyu.mall.ware.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.moyu.common.utils.PageUtils;
 import com.moyu.mall.ware.entity.WareSkuEntity;
+import com.moyu.mall.ware.vo.SkuHasStockVo;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -24,5 +26,12 @@ public interface WareSkuService extends IService<WareSkuEntity> {
      * @param skuNum
      */
     void addStock(Long skuId, Long wareId, Integer skuNum);
+
+    /**
+     * 查询是否有库存
+     * @param skuIds
+     * @return
+     */
+    List<SkuHasStockVo> getSkuHasStock(List<Long> skuIds);
 }
 
