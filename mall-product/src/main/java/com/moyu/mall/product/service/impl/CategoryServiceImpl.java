@@ -1,6 +1,7 @@
 package com.moyu.mall.product.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -10,6 +11,7 @@ import com.moyu.mall.product.dao.CategoryDao;
 import com.moyu.mall.product.entity.CategoryEntity;
 import com.moyu.mall.product.service.CategoryBrandRelationService;
 import com.moyu.mall.product.service.CategoryService;
+import com.moyu.mall.product.vo.Catelog2Vo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,6 +86,55 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         this.updateById(category);
 
         categoryBrandRelationService.updateCategory(category.getCatId(), category.getName());
+    }
+
+    @Override
+    public List<CategoryEntity> getLevel1Category() {
+        LambdaQueryWrapper<CategoryEntity> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(CategoryEntity::getParentCid, 0);
+        List<CategoryEntity> list = baseMapper.selectList(wrapper);
+
+        return list;
+    }
+
+    @Override
+    public Map<String, List<Catelog2Vo>> getCatalogJson() {
+        List<CategoryEntity> level1Category = getLevel1Category();
+        Map<String, List<Catelog2Vo>> listMap = level1Category.stream().collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
+            //查询 1 级分类的二级分类
+            LambdaQueryWrapper<CategoryEntity> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(CategoryEntity::getParentCid, v.getCatId());
+            List<CategoryEntity> list = baseMapper.selectList(wrapper);
+
+            List<Catelog2Vo> catelog2VoList = new ArrayList<>();
+            if (CollectionUtils.isNotEmpty(list)) {
+                catelog2VoList = list.stream().map(l2 -> {
+                    Catelog2Vo catelog2Vo = new Catelog2Vo(v.getCatId().toString(), null, l2.getCatId().toString(), l2.getName());
+
+                    LambdaQueryWrapper<CategoryEntity> queryWrapper = new LambdaQueryWrapper<>();
+                    queryWrapper.eq(CategoryEntity::getParentCid, l2.getCatId());
+                    List<CategoryEntity> level3List = baseMapper.selectList(queryWrapper);
+                    if (CollectionUtils.isNotEmpty(level3List)) {
+                        List<Catelog2Vo.Catelog3Vo> catelog3VoList = level3List.stream().map(item3 -> {
+                            Catelog2Vo.Catelog3Vo catelog3Vo = new Catelog2Vo.Catelog3Vo(l2.getCatId().toString(), item3.getCatId().toString(), item3.getName());
+
+                            return catelog3Vo;
+                        }).collect(Collectors.toList());
+
+                        catelog2Vo.setCatalog3List(catelog3VoList);
+                    }
+
+
+                    return catelog2Vo;
+
+                }).collect(Collectors.toList());
+            }
+
+
+            return catelog2VoList;
+        }));
+
+        return listMap;
     }
 
     private List<Long> findParentCateLogPath(Long catelogId, List<Long> paths) {
