@@ -23,10 +23,14 @@ spring:
         cache: false
         prefix: classpath:/templates/
         suffix: .html
+    redis:
+        host: 47.117.142.234
+        port: 6379
 
 
 server:
     port: 7001
+
 
 
 

@@ -6,6 +6,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
@@ -67,4 +69,18 @@ public class MallProductApplicationTests {
     //        }
     //    }
     //}
+
+    @Autowired
+    private RedisTemplate redisTemplate;
+
+    @Test
+    public void redisTest() {
+        ValueOperations ops = redisTemplate.opsForValue();
+        //ops.set("hello", "world" + UUID.randomUUID().toString());
+
+
+        Object hello = ops.get("catalogJSON");
+
+        System.out.println("redis保存的数据：" + hello);
+    }
 }

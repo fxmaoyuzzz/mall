@@ -1,6 +1,7 @@
 package com.moyu.mall.product.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -14,7 +15,9 @@ import com.moyu.mall.product.service.CategoryService;
 import com.moyu.mall.product.vo.Catelog2Vo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +31,9 @@ import java.util.stream.Collectors;
 @Service("categoryService")
 public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity> implements CategoryService {
 
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @Autowired
     private CategoryBrandRelationService categoryBrandRelationService;
@@ -99,6 +105,28 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     @Override
     public Map<String, List<Catelog2Vo>> getCatalogJson() {
+
+        //获取 Redis 中的数据
+        String catalogJSON = (String) redisTemplate.opsForValue().get("catalogJSON");
+        if (StringUtils.isBlank(catalogJSON)){
+            //Redis 中未获取到查询数据库，并保存到 Redis
+            Map<String, List<Catelog2Vo>> catalogJsonFromDb = getCatalogJsonFromDb();
+
+            String catalogJson = JSON.toJSONString(catalogJsonFromDb);
+            log.info("查询数据库，并将数据保存到 Redis：{}", catalogJson);
+            redisTemplate.opsForValue().set("catalogJSON", catalogJson);
+
+            return catalogJsonFromDb;
+        }
+
+        //获取的JSON转换成对象
+        Map<String, List<Catelog2Vo>> catalog = JSON.parseObject(catalogJSON, new TypeReference<Map<String, List<Catelog2Vo>>>() {});
+
+        return catalog;
+    }
+
+
+    public Map<String, List<Catelog2Vo>> getCatalogJsonFromDb() {
         List<CategoryEntity> level1Category = getLevel1Category();
         Map<String, List<Catelog2Vo>> listMap = level1Category.stream().collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
             //查询 1 级分类的二级分类
