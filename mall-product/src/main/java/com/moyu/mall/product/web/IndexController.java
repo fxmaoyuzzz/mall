@@ -27,7 +27,7 @@ public class IndexController {
     private RedissonClient redissonClient;
 
     @Autowired
-    private CategoryService categoryService;
+    CategoryService categoryService;
 
     @GetMapping({"/", "/index.html"})
     public String indexPage(Model model){

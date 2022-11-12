@@ -8,6 +8,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @EnableFeignClients(basePackages = "com.moyu.mall.product.feign")
 @EnableDiscoveryClient
 @SpringBootApplication
+//@EnableCaching
 public class MallProductApplication {
 
     public static void main(String[] args) {

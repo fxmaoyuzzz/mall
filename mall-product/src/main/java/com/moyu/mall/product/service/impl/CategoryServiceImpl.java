@@ -19,6 +19,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
@@ -37,6 +41,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     private RedisTemplate redisTemplate;
 
     @Autowired
+    @Lazy
     private CategoryBrandRelationService categoryBrandRelationService;
 
     @Autowired
@@ -90,16 +95,25 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         return cateLogPath.toArray(new Long[cateLogPath.size()]);
     }
 
+    //@CacheEvict(value = "category", key = "'getLevel1Category'")
+    @Caching(evict = {
+            @CacheEvict(value = "category", key = "'getLevel1Category'"),
+            @CacheEvict(value = "category", key = "'getCatalogJson'")
+    })
+    @CacheEvict(value = "category", allEntries = true)
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateCascade(CategoryEntity category) {
+
         this.updateById(category);
 
         categoryBrandRelationService.updateCategory(category.getCatId(), category.getName());
     }
 
+    @Cacheable(value = {"category"}, key = "#root.method.name")
     @Override
     public List<CategoryEntity> getLevel1Category() {
+        log.info("获取首页菜单");
         LambdaQueryWrapper<CategoryEntity> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(CategoryEntity::getParentCid, 0);
         List<CategoryEntity> list = baseMapper.selectList(wrapper);
@@ -107,8 +121,48 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         return list;
     }
 
+    @Cacheable(value = {"category"}, key = "#root.methodName")
     @Override
     public Map<String, List<Catelog2Vo>> getCatalogJson() {
+        List<CategoryEntity> level1Category = getLevel1Category();
+        Map<String, List<Catelog2Vo>> listMap = level1Category.stream().collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
+            //查询 1 级分类的二级分类
+            LambdaQueryWrapper<CategoryEntity> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(CategoryEntity::getParentCid, v.getCatId());
+            List<CategoryEntity> list = baseMapper.selectList(wrapper);
+
+            List<Catelog2Vo> catelog2VoList = new ArrayList<>();
+            if (CollectionUtils.isNotEmpty(list)) {
+                catelog2VoList = list.stream().map(l2 -> {
+                    Catelog2Vo catelog2Vo = new Catelog2Vo(v.getCatId().toString(), null, l2.getCatId().toString(), l2.getName());
+
+                    LambdaQueryWrapper<CategoryEntity> queryWrapper = new LambdaQueryWrapper<>();
+                    queryWrapper.eq(CategoryEntity::getParentCid, l2.getCatId());
+                    List<CategoryEntity> level3List = baseMapper.selectList(queryWrapper);
+                    if (CollectionUtils.isNotEmpty(level3List)) {
+                        List<Catelog2Vo.Catelog3Vo> catelog3VoList = level3List.stream().map(item3 -> {
+                            Catelog2Vo.Catelog3Vo catelog3Vo = new Catelog2Vo.Catelog3Vo(l2.getCatId().toString(), item3.getCatId().toString(), item3.getName());
+
+                            return catelog3Vo;
+                        }).collect(Collectors.toList());
+
+                        catelog2Vo.setCatalog3List(catelog3VoList);
+                    }
+
+
+                    return catelog2Vo;
+
+                }).collect(Collectors.toList());
+            }
+
+            return catelog2VoList;
+        }));
+
+        return listMap;
+    }
+
+    //@Override
+    public Map<String, List<Catelog2Vo>> getCatalogJson2() {
 
         //获取 Redis 中的数据
         String catalogJSON = (String) redisTemplate.opsForValue().get("catalogJSON");
