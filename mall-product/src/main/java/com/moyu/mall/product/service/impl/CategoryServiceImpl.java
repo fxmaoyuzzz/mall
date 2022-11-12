@@ -16,6 +16,8 @@ import com.moyu.mall.product.vo.Catelog2Vo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -36,6 +38,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     @Autowired
     private CategoryBrandRelationService categoryBrandRelationService;
+
+    @Autowired
+    private RedissonClient redissonClient;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -123,6 +128,26 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
         return catalog;
     }
+
+    /**
+     * redisson 分布式锁
+     * @return
+     */
+    public Map<String, List<Catelog2Vo>> getCatalogJsonFromDbWithRedissonLock() {
+        RLock catalogJsonLock = redissonClient.getLock("catalogJson-lock");
+        catalogJsonLock.lock();
+        Map<String, List<Catelog2Vo>> dataFromDb = new HashMap<>();
+        try {
+            dataFromDb = getDataFromDb();
+        } catch (Exception e) {
+            log.error("从数据库获取数据发生异常");
+        } finally {
+            catalogJsonLock.unlock();
+        }
+
+        return dataFromDb;
+    }
+
 
     /**
      * 分布式锁

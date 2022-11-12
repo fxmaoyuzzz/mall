@@ -4,6 +4,7 @@ import com.moyu.mall.product.entity.BrandEntity;
 import com.moyu.mall.product.service.BrandService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -82,5 +83,13 @@ public class MallProductApplicationTests {
         Object hello = ops.get("catalogJSON");
 
         System.out.println("redis保存的数据：" + hello);
+    }
+
+    @Autowired
+    private RedissonClient redissonClient;
+
+    @Test
+    public void redissonTest() {
+        System.out.println(redissonClient);
     }
 }

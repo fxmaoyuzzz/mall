@@ -3,6 +3,8 @@ package com.moyu.mall.product.web;
 import com.moyu.mall.product.entity.CategoryEntity;
 import com.moyu.mall.product.service.CategoryService;
 import com.moyu.mall.product.vo.Catelog2Vo;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,6 +22,9 @@ import java.util.Map;
 
 @Controller
 public class IndexController {
+
+    @Autowired
+    private RedissonClient redissonClient;
 
     @Autowired
     private CategoryService categoryService;
@@ -41,4 +46,23 @@ public class IndexController {
         return map;
     }
 
+    @ResponseBody
+    @GetMapping("/hello")
+    public String hello(){
+        RLock lock = redissonClient.getLock("my-lock");
+
+        lock.lock();
+        try {
+            System.out.println("加锁成功，执行业务" + Thread.currentThread().getId());
+            Thread.sleep(10000);
+
+        }catch (Exception e){
+
+        }finally {
+            System.out.println("解锁成功" + Thread.currentThread().getId());
+            lock.unlock();
+        }
+
+        return "hello";
+    }
 }
