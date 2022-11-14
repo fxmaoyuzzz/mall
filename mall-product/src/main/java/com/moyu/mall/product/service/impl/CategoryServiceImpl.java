@@ -110,7 +110,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         categoryBrandRelationService.updateCategory(category.getCatId(), category.getName());
     }
 
-    @Cacheable(value = {"category"}, key = "#root.method.name")
+    @Cacheable(value = {"category"}, key = "#root.method.name", sync = true)
     @Override
     public List<CategoryEntity> getLevel1Category() {
         log.info("获取首页菜单");
